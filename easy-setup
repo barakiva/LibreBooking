@@ -1,0 +1,36 @@
+#! /usr/bin/bash
+
+set -euo pipefail
+
+apachectl -M | grep -q headers_module || a2enmod headers
+apachectl -M | grep -q rewrite_module || a2enmod rewrite
+
+
+composer install
+chmod -R 755 /tpl_c
+chmod -R 755 /tpl
+chmod -R 755 /uploads
+
+# Config
+cp /config/config.dist.php /config/config.php
+CFG_FILE="config/config.php"
+DB_TYPE="mysql"
+DB_HOST="127.0.0.1"
+DB_NAME="librebooking"
+DB_USER="lb_user"
+DB_PASS="password"
+INSTALL_PASS="verysecuresecret"
+# Update lines in-place
+sed -i -E "s/('type'\s*=>\s*)'[^']*'/\1'$DB_TYPE'/"     "$CFG_FILE"
+sed -i -E "s/('hostspec'\s*=>\s*)'[^']*'/\1'$DB_HOST'/" "$CFG_FILE"
+sed -i -E "s/('name'\s*=>\s*)'[^']*'/\1'$DB_NAME'/"     "$CFG_FILE"
+sed -i -E "s/('user'\s*=>\s*)'[^']*'/\1'$DB_USER'/"     "$CFG_FILE"
+sed -i -E "s/('password'\s*=>\s*)'[^']*'/\1'$DB_PASS'/" "$CFG_FILE"
+# Install password
+sed -i -E "s/('install\.password'\s*=>\s*)'[^']*'/\1'$INSTALL_PASS'/" "$CFG_FILE"
+
+
+# --- Apache reload ---
+sudo systemctl reload apache2 || sudo systemctl restart apache2
+
+echo "✅ Installation complete"
