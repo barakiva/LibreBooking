@@ -7,13 +7,14 @@ apachectl -M | grep -q rewrite_module || a2enmod rewrite
 
 
 composer install
-chmod -R 755 /tpl_c
-chmod -R 755 /tpl
-chmod -R 755 /uploads
+mkdir -p ./tpl_c
+chmod -R 755 ./tpl_c
+chmod -R 755 ./tpl
+chmod -R 755 ./uploads
 
 # Config
-cp /config/config.dist.php /config/config.php
-CFG_FILE="config/config.php"
+cp ./config/config.dist.php ./config/config.php
+CFG_FILE="./config/config.php"
 DB_TYPE="mysql"
 DB_HOST="127.0.0.1"
 DB_NAME="librebooking"
