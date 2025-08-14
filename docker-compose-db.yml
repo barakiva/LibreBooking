@@ -1,0 +1,17 @@
+services:
+  mdb:
+    image: mysql:8.0          # or 5.7 if the app needs an older version
+    container_name: librebooking-mdb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: librebooking
+      MYSQL_USER: lb_user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"           # host:container
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
