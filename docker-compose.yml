@@ -1,6 +1,6 @@
 services:
   mdb:
-    image: mysql:8.0 # or 5.7 if the app needs an older version
+    image: mysql:8.0
     container_name: librebooking-mdb
     restart: unless-stopped
     environment:
@@ -19,13 +19,12 @@ services:
         target: /docker-entrypoint-initdb.d/dump.sql
         read_only: true
     networks: [lbnet]
-
   pma:
     image: phpmyadmin:5.2-apache
     container_name: librebooking-pma
     restart: unless-stopped
     ports:
-      - "8080:80" # http://localhost:8080
+      - "8080:80" 
     environment:
       PMA_HOST: mdb # service name of MySQL
       PMA_PORT: 3306
@@ -36,6 +35,11 @@ services:
     depends_on:
       mdb:
         condition: service_started
+    volumes:
+      - type: bind
+        source: ./config.user.inc.php
+        target: /etc/phpmyadmin/config.user.inc.php
+        read_only: true
     networks: [lbnet]
 
 networks:
