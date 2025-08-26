@@ -1,6 +1,6 @@
 services:
   mdb:
-    image: mysql:8.0          # or 5.7 if the app needs an older version
+    image: mysql:8.0 # or 5.7 if the app needs an older version
     container_name: librebooking-mdb
     restart: unless-stopped
     environment:
@@ -9,7 +9,7 @@ services:
       MYSQL_USER: lb_user
       MYSQL_PASSWORD: password
     ports:
-      - "3306:3306"           # host:container
+      - "3306:3306" # host:container
     volumes:
       - type: bind
         source: ./data/mysql
@@ -18,23 +18,29 @@ services:
         source: ./data/dump.sql
         target: /docker-entrypoint-initdb.d/dump.sql
         read_only: true
+    networks: [lbnet]
+
   pma:
     image: phpmyadmin:5.2-apache
     container_name: librebooking-pma
     restart: unless-stopped
     ports:
-      - "8080:80"                     # http://localhost:8080
+      - "8080:80" # http://localhost:8080
     environment:
-      PMA_HOST: mdb                   # service name of MySQL
+      PMA_HOST: mdb # service name of MySQL
       PMA_PORT: 3306
       # Optional: log in as root or your app user
       # PMA_USER: lb_user
       # PMA_PASSWORD: password
-      UPLOAD_LIMIT: 256M              # allow larger SQL imports
+      UPLOAD_LIMIT: 256M # allow larger SQL imports
     depends_on:
       mdb:
         condition: service_started
+    networks: [lbnet]
 
+networks:
+  lbnet:
+    driver: bridge
 
 volumes:
   db_data:
