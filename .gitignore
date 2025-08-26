@@ -4,8 +4,8 @@
 /build/*
 /tools/*
 /var/*
-
-# Customized Confiuration Files
+/data/*
+# Customized Configuration Files
 /config/config.php
 /config/log4php.config.xml
 **/*.config.php

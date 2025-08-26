@@ -40,7 +40,7 @@ CREATE TABLE `time_blocks` (
  `end_time` time NOT NULL,
  PRIMARY KEY (`block_id`),
  INDEX (`layout_id`),
- FOREIGN KEY (`layout_id`) 
+ FOREIGN KEY (`layout_id`)
 	REFERENCES `layouts`(`layout_id`)
 	ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8;
@@ -151,7 +151,7 @@ CREATE TABLE `users` (
  `legacypassword` varchar(32),
  PRIMARY KEY (`user_id`),
  INDEX (`status_id`),
- FOREIGN KEY (`status_id`) 
+ FOREIGN KEY (`status_id`)
 	REFERENCES `user_statuses`(`status_id`)
 	ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8;
@@ -167,10 +167,10 @@ CREATE TABLE `user_groups` (
  PRIMARY KEY (`group_id`, `user_id`),
  INDEX (`user_id`),
  INDEX (`group_id`),
- FOREIGN KEY (`user_id`) 
+ FOREIGN KEY (`user_id`)
 	REFERENCES users(`user_id`)
 	ON UPDATE CASCADE ON DELETE CASCADE,
- FOREIGN KEY (`group_id`) 
+ FOREIGN KEY (`group_id`)
 	REFERENCES `groups`(`group_id`)
 	ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8;
@@ -221,10 +221,10 @@ CREATE TABLE `user_resource_permissions` (
  PRIMARY KEY (`user_id`, `resource_id`),
  INDEX (`user_id`),
  INDEX (`resource_id`),
- FOREIGN KEY (`user_id`) 
+ FOREIGN KEY (`user_id`)
 	REFERENCES users(`user_id`)
 	ON UPDATE CASCADE ON DELETE CASCADE,
- FOREIGN KEY (`resource_id`) 
+ FOREIGN KEY (`resource_id`)
 	REFERENCES `resources`(`resource_id`)
 	ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8;
@@ -240,11 +240,11 @@ CREATE TABLE `group_resource_permissions` (
  PRIMARY KEY (`group_id`, `resource_id`),
  INDEX (`group_id`),
  INDEX (`resource_id`),
- FOREIGN KEY (`group_id`) 
-	REFERENCES `groups`(`group_id`) 
+ FOREIGN KEY (`group_id`)
+	REFERENCES `groups`(`group_id`)
 	ON UPDATE CASCADE ON DELETE CASCADE,
- FOREIGN KEY (`resource_id`) 
-	REFERENCES `resources`(`resource_id`) 
+ FOREIGN KEY (`resource_id`)
+	REFERENCES `resources`(`resource_id`)
 	ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8;
 
@@ -345,10 +345,10 @@ CREATE TABLE `reservation_resources` (
  PRIMARY KEY (`series_id`, `resource_id`),
  INDEX (`resource_id`),
  INDEX (`series_id`),
- FOREIGN KEY (`resource_id`) 
+ FOREIGN KEY (`resource_id`)
 	REFERENCES resources(`resource_id`)
 	ON UPDATE CASCADE ON DELETE CASCADE,
- FOREIGN KEY (`series_id`) 
+ FOREIGN KEY (`series_id`)
 	REFERENCES `reservation_series`(`series_id`)
 	ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8;
