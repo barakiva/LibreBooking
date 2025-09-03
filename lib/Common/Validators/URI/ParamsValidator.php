@@ -52,6 +52,8 @@ class ParamsValidator
     {
         if (!self::validate($params, $requestURI, $optional)) {
             Log::Debug(message: "Validation failed. Redirecting to: " . dirname($_SERVER['SCRIPT_NAME']) . $redirectURL);
+            error_log("[REDIRECT] Page.php → $redirectURL");
+            header("Test-Header: example_renw");
             header("Location: " . dirname($_SERVER['SCRIPT_NAME']) . $redirectURL);
             exit;
         }

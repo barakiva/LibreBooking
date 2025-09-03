@@ -162,6 +162,8 @@ abstract class Page implements IPage
         }
 
         $url = str_replace('&amp;', '&', $url);
+        error_log("[REDIRECT] Page.php → $url");
+            header("Test-Header: example_renw");
         header("Location: $url");
         die();
     }
@@ -171,7 +173,8 @@ abstract class Page implements IPage
         if (!BookedStringHelper::StartsWith($url, $this->path)) {
             $url = $this->path . $url;
         }
-
+        error_log("[REDIRECT] Page.php → $url");
+            header("Test-Header: example_renw");
         header("Location: $url");
         die();
     }

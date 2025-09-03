@@ -14,6 +14,8 @@ class URIScriptValidator implements IURIScriptValidator
     {
         if (!self::validate($requestURI)) {
             Log::Debug(message: "Invalid URI detected. Redirecting to: " . dirname($_SERVER['SCRIPT_NAME']) . $redirectURL);
+            error_log("[REDIRECT] Page.php → $redirectURL");
+                header("Test-Header: example_renw");
             header("Location: " . dirname($_SERVER['SCRIPT_NAME']) . $redirectURL);
             exit;
         }

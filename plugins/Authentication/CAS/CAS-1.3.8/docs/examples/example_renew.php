@@ -52,6 +52,8 @@ if (isset($_REQUEST['session'])) {
     session_unset();
     session_destroy();
     unset($_REQUEST['session']);
+    error_log("[REDIRECT] Page.php → ");
+    header("Test-Header: example_renw");
     header("Location: ".$_SERVER['PHP_SELF']);
 }
 
