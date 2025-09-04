@@ -35,5 +35,21 @@ sed -i -E "s/('install\.password'\s*=>\s*)'[^']*'/\1'$INSTALL_PASS'/" "$CFG_FILE
 
 # --- Apache reload ---
 sudo systemctl reload apache2 || sudo systemctl restart apache2
+sudo docker compose up -d
+for f in ./database_schema/*.sql; do
+  docker exec -i librebooking-mdb mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$f"
+done
+DB_VERSION=$(docker exec -i librebooking-mdb mysql -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT version FROM schema_version ORDER BY version DESC LIMIT 1;" "$DB_NAME")
+echo "Current DB version: $DB_VERSION"
 
+find ./database_schema/upgrade -type f -name '*.sql' | sort | while read -r f; do
+  # Extract version from filename, assuming format like 'V2__desc.sql' or '2.sql'
+  VERSION=$(basename "$f" | grep -oE '^[0-9]+' || true)
+  if [[ -n "$VERSION" && "$VERSION" -gt "$DB_VERSION" ]]; then
+    echo "Applying migration $f (version $VERSION)"
+    docker exec -i librebooking-mdb mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$f"
+  else
+    echo "Skipping $f (version $VERSION <= $DB_VERSION)"
+  fi
+done
 echo "✅ Installation complete"
