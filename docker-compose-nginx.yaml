@@ -3,11 +3,13 @@ services:
   nginx:
     image: nginx:1.27
     container_name: librebooking_nginx
-    ports:
-      - "180:80"
     volumes:
       - .:/var/www/html
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "180:80"
+    networks:
+      - [librebooking]
     depends_on:
       - web
   web:
@@ -17,6 +19,8 @@ services:
     container_name: librebooking_web
     volumes:
       - .:/var/www/html
+    networks:
+      - [librebooking]
     depends_on:
       - db
 
@@ -30,18 +34,27 @@ services:
       MYSQL_PASSWORD: libre
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - [librebooking]
 
   phpmyadmin:
     image: phpmyadmin:latest
     container_name: librebooking_phpmyadmin
-    ports:
-      - "8080:80"
     environment:
       PMA_HOST: db
       PMA_USER: root
       PMA_PASSWORD: root
+    ports:
+      - "8080:80"
+    networks:
+      - [librebooking]
     depends_on:
-      - db
+      db:
+        condition: service_started
+
+networks:
+  librebooking:
+    driver: bridge
 
 volumes:
   db_data:
