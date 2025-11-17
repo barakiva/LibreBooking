@@ -49,30 +49,30 @@ Application Identity
 
 **app.title**
   The title of the application displayed in the header and browser tab.
-  
+
   .. code-block:: php
-  
+
      'app.title' => 'LibreBooking',
 
 **admin.email**
   Administrator email address.
-  
+
   .. code-block:: php
-  
+
      'admin.email' => 'admin@example.com',
 
 **company.name**
   Company name to show in the page header.
-  
+
   .. code-block:: php
-  
+
      'company.name' => '',
 
 **company.url**
   URL to the company's website.
-  
+
   .. code-block:: php
-  
+
      'company.url' => '',
 
 Time and Language
@@ -80,16 +80,16 @@ Time and Language
 
 **default.timezone**
   Look up here http://php.net/manual/en/timezones.php.
-  
+
   .. code-block:: php
-  
+
      'default.timezone' => 'Europe/London',
 
 **default.language**
   Default language for the application.
-  
+
   .. code-block:: php
-  
+
      'default.language' => 'en_us',
 
 Database Configuration
@@ -286,9 +286,9 @@ Installation
 
 **install.password**
   Password required for installation or upgrades.
-  
+
   .. code-block:: php
-  
+
      'install.password' => '',
 
 Basic Privacy Settings
@@ -353,7 +353,7 @@ Quick Start with Docker Compose
             - PGID=1000
             - TZ=America/New_York
             - MYSQL_ROOT_PASSWORD=your_secure_root_password
-        
+
         app:
           image: librebooking/librebooking:develop
           restart: always
@@ -379,7 +379,7 @@ Quick Start with Docker Compose
 
    .. code-block:: bash
 
-      docker-compose up -d
+      docker compose up -d
 
 3. **Complete the installation:**
 

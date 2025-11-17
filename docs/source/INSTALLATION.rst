@@ -86,10 +86,10 @@ minimal default settings which should be enough for the application to work.
 Copy ``/config/config.dist.php`` to ``/config/config.php`` and adjust
 the settings for your environment.
 
-For detailed information on all configuration options, see :doc:`BASIC-CONFIGURATION` 
+For detailed information on all configuration options, see :doc:`BASIC-CONFIGURATION`
 for essential settings or :doc:`ADVANCED-CONFIGURATION` for comprehensive options.
 
-The admin email address can be set in the ``config/config.php`` file in the 
+The admin email address can be set in the ``config/config.php`` file in the
 settings array as ``'admin.email' => 'admin@example.com'``
 
 When you later register an account with the admin email address, the user will be given
@@ -171,7 +171,7 @@ Manual Database Setup
   database configuration and set default values.
 | Please edit them to suit your environment before running. The files
   are located in ``librebooking/database_schema/``
-| 
+|
 | The following SQL files are available:
 | - ``create-db.sql`` - Creates the database
 | - ``create-user.sql`` - Creates the database user (optional)
@@ -328,7 +328,7 @@ Quick Start with Docker Compose
             - PGID=1000
             - TZ=America/New_York
             - MYSQL_ROOT_PASSWORD=your_secure_root_password
-        
+
         app:
           image: librebooking/librebooking:develop
           restart: always
@@ -354,7 +354,7 @@ Quick Start with Docker Compose
 
    .. code-block:: bash
 
-      docker-compose up -d
+      docker compose up -d
 
 3. **Complete the installation:**
 
@@ -471,7 +471,7 @@ Docker Troubleshooting
   -  Check container has write permissions to volumes
   -  Use named volumes instead of bind mounts for easier management
 
-For more detailed Docker configuration options and advanced setups, see the 
+For more detailed Docker configuration options and advanced setups, see the
 `LibreBooking Docker repository <https://github.com/LibreBooking/docker>`__.
 
 Registering the Administrator Account
@@ -591,8 +591,8 @@ application or database logs. To do this:
    in your configuration file to an appropriate level. For example,
    set ``'logging' => ['level' => 'debug']`` within the settings array.
 
-For detailed information on all logging and other configuration options, 
-see :doc:`BASIC-CONFIGURATION` for essential settings or :doc:`ADVANCED-CONFIGURATION` 
+For detailed information on all logging and other configuration options,
+see :doc:`BASIC-CONFIGURATION` for essential settings or :doc:`ADVANCED-CONFIGURATION`
 for comprehensive options.
 
 

@@ -109,7 +109,7 @@ LibreBooking is available as a Docker container. See [LibreBooking Docker README
 ```bash
 git clone https://github.com/LibreBooking/docker.git
 cd docker
-docker-compose up -d
+docker compose up -d
 ```
 
 ## 💻 Developer Documentation
