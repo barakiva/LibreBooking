@@ -5,10 +5,10 @@
     "dockerComposeFile": [
         "./docker-compose.devcontainer.yml"
     ],
-    "service": "librebooking",
+    "service": "librebooking-dev",
     "runServices": [
-        "librebooking",
-        "db"
+        "librebooking-dev",
+        "db-dev"
     ],
     "workspaceFolder": "/var/www/html",
     "mounts": [

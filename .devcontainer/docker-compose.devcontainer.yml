@@ -1,24 +1,24 @@
 services:
-  librebooking:
+  librebooking-dev:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: librebooking-app
+    container_name: librebooking-app-devc
     depends_on:
-      - db
+      - db-dev
     ports:
       - "80:80"
     environment:
       - LB_APP_TITLE=LibreBooking-Dev
-      - LB_DATABASE_HOSTSPEC=librebooking-db
+      - LB_DATABASE_HOSTSPEC=librebooking-db-devc
       - LB_DATABASE_USER=librebooking
       - LB_DATABASE_PASSWORD=devpass
       - LB_DATABASE_NAME=librebooking
       - LB_ENV=development
       - TZ=UTC
-  db:
+  db-dev:
     image: mariadb:12.0.2
-    container_name: librebooking-db
+    container_name: librebooking-db-devc
     environment:
       - MYSQL_ROOT_PASSWORD=devpass
       - MYSQL_DATABASE=librebooking
