@@ -1,7 +1,7 @@
 <?php
 
 require_once(ROOT_DIR . 'Presenters/Authentication/LoginRedirector.php');
-
+use GuzzleHttp\Client;
 class ExternalAuthLoginPresenter
 {
     /**
@@ -106,7 +106,7 @@ class ExternalAuthLoginPresenter
                 'scope' => 'user.read',
             ];
 
-            $client = new \GuzzleHttp\Client();
+            $client = new Client();
 
             $response = $client->post($tokenEndpoint, [
                 'form_params' => $postData,
@@ -199,7 +199,7 @@ class ExternalAuthLoginPresenter
             'client_secret' => $clientSecret,
         ];
 
-        $client = new \GuzzleHttp\Client();
+        $client = new Client();
 
         try {
             $response = $client->post($tokenEndpoint, ['form_params' => $postData]);
@@ -257,7 +257,7 @@ class ExternalAuthLoginPresenter
             'client_secret' => $clientSecret,
         ];
 
-        $client = new \GuzzleHttp\Client();
+        $client = new Client();
 
         try {
             $response = $client->post($oauth2UrlToken, ['form_params' => $postData]);

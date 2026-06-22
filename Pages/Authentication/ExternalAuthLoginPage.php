@@ -3,6 +3,7 @@
 require_once(ROOT_DIR . 'Pages/Page.php');
 require_once(ROOT_DIR . 'Pages/Authentication/ILoginBasePage.php');
 require_once(ROOT_DIR . 'lib/Application/Authentication/namespace.php');
+require_once(ROOT_DIR . 'Presenters/Authentication/ExternalAuthLoginPresenter.php');
 
 class ExternalAuthLoginPage extends Page implements ILoginBasePage
 {
