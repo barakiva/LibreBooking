@@ -4,14 +4,14 @@ require_once(ROOT_DIR . 'Pages/Page.php');
 require_once(ROOT_DIR . 'Pages/Authentication/ILoginBasePage.php');
 require_once(ROOT_DIR . 'lib/Application/Authentication/namespace.php');
 require_once(ROOT_DIR . 'Presenters/Authentication/ExternalAuthLoginPresenter.php');
-
+use GuzzleHttp\Client;
 class ExternalAuthLoginPage extends Page implements ILoginBasePage
 {
     public $presenter;
 
     public function __construct()
     {
-        $this->presenter = new ExternalAuthLoginPresenter($this, new WebAuthentication(PluginManager::Instance()->LoadAuthentication()), new Registration());
+        $this->presenter = new ExternalAuthLoginPresenter($this, new WebAuthentication(PluginManager::Instance()->LoadAuthentication()), new Registration(), new Client());
         parent::__construct('Login');
     }
 

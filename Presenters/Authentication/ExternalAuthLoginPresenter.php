@@ -17,30 +17,26 @@ class ExternalAuthLoginPresenter
      */
     private $registration;
 
-    public function __construct(ExternalAuthLoginPage $page, IWebAuthentication $authentication, IRegistration $registration)
+    private $httpClient;
+
+    public function __construct(ExternalAuthLoginPage $page, IWebAuthentication $authentication, IRegistration $registration, GuzzleHttp\Client $httpClient)
     {
         $this->page = $page;
         $this->authentication = $authentication;
         $this->registration = $registration;
+        $this->httpClient = $httpClient;
     }
 
     public function PageLoad()
     {
-        if ($this->page->GetType() == 'google') {
-            $this->ProcessGoogleSingleSignOn();
-        }
-        if ($this->page->GetType() == 'fb') {
-            $this->ProcessFacebookSingleSignOn();
-        }
-        if ($this->page->GetType() == 'microsoft') {
-            $this->ProcessMicrosoftSingleSignOn();
-        }
-        if ($this->page->GetType() == 'keycloak') {
-            $this->ProcessKeycloakSingleSignOn();
-        }
-        if ($this->page->GetType() == 'oauth2') {
-            $this->ProcessOauth2SingleSignOn();
-        }
+        match ($this->page->GetType()) {
+            'google'    => $this->ProcessGoogleSingleSignOn(),
+            'microsoft' => $this->ProcessMicrosoftSingleSignOn(),
+            'fb'        => $this->ProcessFacebookSingleSignOn(),
+            'keycloak'  => $this->ProcessKeycloakSingleSignOn(),
+            'oauth2'    => $this->ProcessOauth2SingleSignOn(),
+            default     => null,
+        };
     }
 
     private function buildRedirectUri(string $configuredPath): string
@@ -58,27 +54,27 @@ class ExternalAuthLoginPresenter
      */
     private function ProcessGoogleSingleSignOn()
     {
-        $client = new Google\Client();
-        $client->setClientId(Configuration::Instance()->GetKey(ConfigKeys::AUTHENTICATION_GOOGLE_CLIENT_ID));
-        $client->setClientSecret(Configuration::Instance()->GetKey(ConfigKeys::AUTHENTICATION_GOOGLE_CLIENT_SECRET));
-        $client->setRedirectUri(Configuration::Instance()->GetKey(ConfigKeys::AUTHENTICATION_GOOGLE_REDIRECT_URI));
-        $client->addScope('email');
-        $client->addScope('profile');
+        $googleClient = new Google\Client();
+        $googleClient->setClientId(Configuration::Instance()->GetKey(ConfigKeys::AUTHENTICATION_GOOGLE_CLIENT_ID));
+        $googleClient->setClientSecret(Configuration::Instance()->GetKey(ConfigKeys::AUTHENTICATION_GOOGLE_CLIENT_SECRET));
+        $googleClient->setRedirectUri(Configuration::Instance()->GetKey(ConfigKeys::AUTHENTICATION_GOOGLE_REDIRECT_URI));
+        $googleClient->addScope('email');
+        $googleClient->addScope('profile');
 
         if (isset($_GET['code'])) {
             //Token validations for the client
-            $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+            $token = $googleClient->fetchAccessTokenWithAuthCode($_GET['code']);
             //set the access token that it received
-            $client->setAccessToken($token['access_token']);
+            $googleClient->setAccessToken($token['access_token']);
 
             //Using the Google API to get the user information
-            $google_oauth = new Google\Service\Oauth2($client);
-            $google_account_info = $google_oauth->userinfo->get();
+            $googleOAuth = new Google\Service\Oauth2($googleClient);
+            $googleAccountInfo = $googleOAuth->userinfo->get();
 
             //Save the informations needed to authenticate the login
-            $email     =  $google_account_info->email;
-            $firstName = $google_account_info->given_name;
-            $lastName  = $google_account_info->family_name;
+            $email     =  $googleAccountInfo->email;
+            $firstName = $googleAccountInfo->given_name;
+            $lastName  = $googleAccountInfo->family_name;
 
             //Process $userData as needed (e.g., create a user, log in, etc.)
             $this->processUserData($email, $email, $firstName, $lastName);
@@ -106,9 +102,7 @@ class ExternalAuthLoginPresenter
                 'scope' => 'user.read',
             ];
 
-            $client = new Client();
-
-            $response = $client->post($tokenEndpoint, [
+            $response = $this->httpClient->post($tokenEndpoint, [
                 'form_params' => $postData,
             ]);
 
@@ -122,7 +116,7 @@ class ExternalAuthLoginPresenter
             $graphApiEndpoint = 'https://graph.microsoft.com/v1.0/me';
 
             // Make a GET request to the Microsoft Graph API endpoint
-            $response = $client->request('GET', $graphApiEndpoint, [
+            $response = $this->httpClient->request('GET', $graphApiEndpoint, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $accessToken,
                 ],
@@ -149,19 +143,19 @@ class ExternalAuthLoginPresenter
     private function ProcessFacebookSingleSignOn()
     {
 
-        $facebook_Client = new Facebook\Facebook([
+        $facebookClient = new Facebook\Facebook([
             'app_id'                => Configuration::Instance()->GetKey(ConfigKeys::AUTHENTICATION_FACEBOOK_CLIENT_ID),
             'app_secret'            => Configuration::Instance()->GetKey(ConfigKeys::AUTHENTICATION_FACEBOOK_CLIENT_SECRET),
             'default_graph_version' => 'v2.5'
         ]);
 
         if (isset($_SESSION['facebook_access_token'])) {
-            $facebook_Client->setDefaultAccessToken(unserialize($_SESSION['facebook_access_token']));
+            $facebookClient->setDefaultAccessToken(unserialize($_SESSION['facebook_access_token']));
         }
         unset($_SESSION['facebook_access_token']);
 
-        $profile_request = $facebook_Client->get('/me?fields=name,first_name,last_name,email');
-        $profile = $profile_request->getGraphUser();
+        $profileRequest = $facebookClient->get('/me?fields=name,first_name,last_name,email');
+        $profile = $profileRequest->getGraphUser();
 
         $email     = $profile->getField('email');
         $firstName = $profile->getField('first_name');
@@ -199,17 +193,15 @@ class ExternalAuthLoginPresenter
             'client_secret' => $clientSecret,
         ];
 
-        $client = new Client();
-
         try {
-            $response = $client->post($tokenEndpoint, ['form_params' => $postData]);
+            $response = $this->httpClient->post($tokenEndpoint, ['form_params' => $postData]);
             $tokenData = json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
             $accessToken = $tokenData['access_token'] ?? null;
             if (!$accessToken) {
                 $this->page->ShowError(['Keycloak: access_token missing.']);
                 return;
             }
-            $uResp = $client->get($userInfoEndpoint, ['headers' => ['Authorization' => 'Bearer ' . $accessToken]]);
+            $uResp = $this->httpClient->get($userInfoEndpoint, ['headers' => ['Authorization' => 'Bearer ' . $accessToken]]);
             $user = json_decode((string) $uResp->getBody(), true, 512, JSON_THROW_ON_ERROR);
         } catch (\Exception $e) {
             $this->page->ShowError(['Error retrieving Keycloak token: ' . $e->getMessage()]);
@@ -257,17 +249,15 @@ class ExternalAuthLoginPresenter
             'client_secret' => $clientSecret,
         ];
 
-        $client = new Client();
-
         try {
-            $response = $client->post($oauth2UrlToken, ['form_params' => $postData]);
+            $response = $this->httpClient->post($oauth2UrlToken, ['form_params' => $postData]);
             $tokenData = json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
             $accessToken = $tokenData['access_token'] ?? null;
             if (!$accessToken) {
                 $this->page->ShowError(['Oauth2: access_token missing.']);
                 return;
             }
-            $uResp = $client->get($oauth2UrlUserinfo, ['headers' => ['Authorization' => 'Bearer ' . $accessToken]]);
+            $uResp = $this->httpClient->get($oauth2UrlUserinfo, ['headers' => ['Authorization' => 'Bearer ' . $accessToken]]);
             $user = json_decode((string) $uResp->getBody(), true, 512, JSON_THROW_ON_ERROR);
         } catch (\Exception $e) {
             $this->page->ShowError(['Error retrieving Oauth2 token: ' . $e->getMessage()]);
