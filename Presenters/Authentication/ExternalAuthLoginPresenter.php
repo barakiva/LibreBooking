@@ -1,7 +1,9 @@
 <?php
 
 require_once(ROOT_DIR . 'Presenters/Authentication/LoginRedirector.php');
+
 use GuzzleHttp\Client;
+
 class ExternalAuthLoginPresenter
 {
     /**
@@ -19,7 +21,7 @@ class ExternalAuthLoginPresenter
 
     private $httpClient;
 
-    public function __construct(ExternalAuthLoginPage $page, IWebAuthentication $authentication, IRegistration $registration, GuzzleHttp\Client $httpClient)
+    public function __construct(ExternalAuthLoginPage $page, IWebAuthentication $authentication, IRegistration $registration, Client $httpClient)
     {
         $this->page = $page;
         $this->authentication = $authentication;
@@ -39,7 +41,7 @@ class ExternalAuthLoginPresenter
         };
     }
 
-    private function buildRedirectUri(string $configuredPath): string
+    protected function buildRedirectUri(string $configuredPath): string
     {
         $scriptUrl = rtrim(Configuration::Instance()->GetScriptUrl(), '/');
         $path = '/' . ltrim($configuredPath, '/');
@@ -285,7 +287,7 @@ class ExternalAuthLoginPresenter
     /**
      * Processes user given data, creates a user in database if it doesn't exist and logs it in
      */
-    private function processUserData($username, $email, $firstName, $lastName, $phone = null, $organization = null, $title = null)
+    protected function processUserData($username, $email, $firstName, $lastName, $phone = null, $organization = null, $title = null)
     {
         $requiredDomainValidator = new RequiredEmailDomainValidator($email);
         $requiredDomainValidator->Validate();
