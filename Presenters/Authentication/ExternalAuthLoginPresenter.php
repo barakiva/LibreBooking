@@ -93,6 +93,8 @@ class ExternalAuthLoginPresenter
         if (isset($_GET['code'])) {
             $code = filter_input(INPUT_GET, 'code');
 
+            Log::Error('MicrosoftSSO: authorization code received. session_id=%s', session_id());
+
             $tokenEndpoint = 'https://login.microsoftonline.com/'
                 . urlencode(Configuration::Instance()->GetKey(ConfigKeys::AUTHENTICATION_MICROSOFT_TENANT_ID))
                 . '/oauth2/v2.0/token';
@@ -108,37 +110,46 @@ class ExternalAuthLoginPresenter
 
             $client = new \GuzzleHttp\Client();
 
+            Log::Error('MicrosoftSSO: POSTing to token endpoint (session lock held)');
+            $t0 = microtime(true);
             $response = $client->post($tokenEndpoint, [
                 'form_params' => $postData,
             ]);
+            Log::Error('MicrosoftSSO: token endpoint responded in %.2fs, status=%d', microtime(true) - $t0, $response->getStatusCode());
 
             // Decode the JSON response
             $tokenData = json_decode($response->getBody(), true);
 
             // Extract the access token from the response
-            $accessToken = $tokenData['access_token'];
+            $accessToken = $tokenData['access_token'] ?? null;
 
             //Get user information
             $graphApiEndpoint = 'https://graph.microsoft.com/v1.0/me';
 
+            Log::Error('MicrosoftSSO: GETting from Graph API, has_token=%s (session lock held)', $accessToken !== null ? 'yes' : 'NO - token missing');
+            $t1 = microtime(true);
             // Make a GET request to the Microsoft Graph API endpoint
             $response = $client->request('GET', $graphApiEndpoint, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $accessToken,
                 ],
             ]);
+            Log::Error('MicrosoftSSO: Graph API responded in %.2fs, status=%d', microtime(true) - $t1, $response->getStatusCode());
 
             // Decode the JSON response
             $userData = json_decode($response->getBody(), true);
 
             // Handle the user data as needed
-            $email     = $userData['mail'];
-            $firstName = $userData['givenName'];
-            ;
-            $lastName  = $userData['surname'];
+            $email     = $userData['mail'] ?? $userData['userPrincipalName'] ?? null;
+            $firstName = $userData['givenName'] ?? null;
+            $lastName  = $userData['surname'] ?? null;
+
+            Log::Error('MicrosoftSSO: user data retrieved. email=%s firstName=%s lastName=%s', $email ?? 'NULL', $firstName ?? 'NULL', $lastName ?? 'NULL');
 
             //Process $userData as needed (e.g., create a user, log in, etc.)
             $this->processUserData($email, $email, $firstName, $lastName);
+        } else {
+            Log::Error('MicrosoftSSO: no authorization code in request. error=%s error_description=%s', $_GET['error'] ?? 'none', $_GET['error_description'] ?? 'none');
         }
     }
 
@@ -301,14 +312,18 @@ class ExternalAuthLoginPresenter
         $requiredDomainValidator->Validate();
         $allowRegistration = Configuration::Instance()->GetKey(ConfigKeys::REGISTRATION_ALLOW_SELF, new BooleanConverter());
         if (!$requiredDomainValidator->IsValid()) {
+            Log::Error('ExternalAuth: domain validation failed for email=%s', $email ?? 'NULL');
             $this->page->ShowError([Resources::GetInstance()->GetString('InvalidEmailDomain')]);
             return;
         }
         if ($this->registration->UserExists($username, $email)) {
+            Log::Error('ExternalAuth: existing user found for email=%s, logging in', $email);
             $this->authentication->Login($email, new WebLoginContext(new LoginData()));
+            Log::Error('ExternalAuth: login complete, about to redirect. session_id=%s', session_id());
             LoginRedirector::Redirect($this->page);
         } else {
             if ($allowRegistration) {
+                Log::Error('ExternalAuth: new user, synchronizing email=%s', $email);
                 $this->registration->Synchronize(
                     user: new AuthenticatedUser(
                         $username,
@@ -326,8 +341,10 @@ class ExternalAuthLoginPresenter
                     overwritePassword: false
                 );
                 $this->authentication->Login($email, new WebLoginContext(new LoginData()));
+                Log::Error('ExternalAuth: new user registered and logged in, about to redirect. session_id=%s', session_id());
                 LoginRedirector::Redirect($this->page);
             } else {
+                Log::Error('ExternalAuth: self-registration disabled, rejecting email=%s', $email ?? 'NULL');
                 $this->page->ShowError([Resources::GetInstance()->GetString('SelfRegistrationDisabled')]);
                 return;
             }

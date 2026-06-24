@@ -20,9 +20,12 @@ class PastReservations extends DashboardItem implements IPastReservationsControl
 
     public function PageLoad()
     {
+        Log::Error('Dashboard widget: PastReservations started');
+        $t = microtime(true);
         $this->Set('DefaultTitle', Resources::GetInstance()->GetString('NoTitleLabel'));
         $this->presenter->SetSearchCriteria(ServiceLocator::GetServer()->GetUserSession()->UserId, ReservationUserLevel::ALL);
         $this->presenter->PageLoad();
+        Log::Error('Dashboard widget: PastReservations completed in %.2fs', microtime(true) - $t);
         $this->Display('past_reservations.tpl');
     }
 

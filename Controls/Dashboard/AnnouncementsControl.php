@@ -15,7 +15,10 @@ class AnnouncementsControl extends DashboardItem implements IAnnouncementsContro
 
     public function PageLoad()
     {
+        Log::Error('Dashboard widget: Announcements started');
+        $t = microtime(true);
         $this->presenter->PageLoad();
+        Log::Error('Dashboard widget: Announcements completed in %.2fs', microtime(true) - $t);
         $this->Display('announcements.tpl');
     }
 

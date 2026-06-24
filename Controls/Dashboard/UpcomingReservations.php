@@ -21,9 +21,12 @@ class UpcomingReservations extends DashboardItem implements IUpcomingReservation
 
     public function PageLoad()
     {
+        Log::Error('Dashboard widget: UpcomingReservations started');
+        $t = microtime(true);
         $this->Set('DefaultTitle', Resources::GetInstance()->GetString('NoTitleLabel'));
         $this->presenter->SetSearchCriteria(ServiceLocator::GetServer()->GetUserSession()->UserId, ReservationUserLevel::ALL);
         $this->presenter->PageLoad();
+        Log::Error('Dashboard widget: UpcomingReservations completed in %.2fs', microtime(true) - $t);
         $this->Display('upcoming_reservations.tpl');
     }
 

@@ -194,7 +194,10 @@ class ResourceAvailabilityControl extends DashboardItem implements IResourceAvai
         $userSession = ServiceLocator::GetServer()->GetUserSession();
         $this->Set('Timezone', $userSession->Timezone);
 
+        Log::Error('Dashboard widget: ResourceAvailability started');
+        $t = microtime(true);
         $this->presenter->PageLoad($userSession);
+        Log::Error('Dashboard widget: ResourceAvailability completed in %.2fs', microtime(true) - $t);
 
         $this->Display('resource_availability.tpl');
     }

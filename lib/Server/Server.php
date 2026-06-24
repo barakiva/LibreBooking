@@ -64,7 +64,9 @@ class Server
             session_set_cookie_params(0, $path);
             @session_unset();
             @session_destroy();
+            error_log('[LibreBooking] session_start() acquiring lock. script=' . ($_SERVER['SCRIPT_NAME'] ?? 'unknown') . ' cookie_id=' . ($_COOKIE['PHPSESSID'] ?? 'none') . ' t=' . microtime(true));
             @session_start();
+            error_log('[LibreBooking] session_start() lock acquired. session_id=' . session_id() . ' t=' . microtime(true));
         }
         if (isset($_SESSION[self::sessionId][$name])) {
             return $_SESSION[self::sessionId][$name];

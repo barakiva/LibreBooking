@@ -20,10 +20,17 @@ class DashboardPage extends SecurePage implements IDashboardPage
 
     public function PageLoad()
     {
+        $userId = ServiceLocator::GetServer()->GetUserSession()->UserId;
+        Log::Error('Dashboard: PageLoad started. userId=%s session_id=%s', $userId, session_id());
+        $t0 = microtime(true);
+
         $this->_presenter->Initialize();
+        Log::Error('Dashboard: widgets initialized in %.2fs, widget_count=%d', microtime(true) - $t0, count($this->items));
 
         $this->Set('items', $this->items);
         $this->Display('dashboard.tpl');
+
+        Log::Error('Dashboard: PageLoad completed in %.2fs', microtime(true) - $t0);
     }
 
     public function AddItem(DashboardItem $item)
